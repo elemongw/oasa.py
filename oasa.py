@@ -46,9 +46,11 @@ def get_arrival(stopcode, routecode):
     parameters = {"act": "getStopArrivals", "p1": stopcode}
     data = get_data(parameters)
     # data is null when there are no upcoming buses!
+    if not data:
+        return None
     for route in data:
         if route["route_code"] == routecode:
-            print(f"Bus is comming in {route['btime2']} minutes!")
+            return route['btime2']
 
 
 def main():
@@ -87,7 +89,11 @@ def main():
         while stopcode not in stops:
             stopcode = input("Select stop (code or ctrl-c/ctrl-d to quit): ")
 
-        get_arrival(stopcode, routecode)
+        arrival = get_arrival(stopcode, routecode)
+        if arrival:
+            print(f"Bus is comming in {arrival} minutes!")
+        else:
+            print("No upcoming bus found!")
     except (KeyboardInterrupt, EOFError):
         print()
 

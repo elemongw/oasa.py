@@ -25,13 +25,13 @@ def get_linecode_from_lineid(lineid):
     parameters = {"act": "webGetLinesWithMLInfo"}
     data = get_data(parameters)
     for line in data:
-        if line["line_id"] == lineid:
+        if line["line_id"] == str(lineid):
             return line["line_code"]
     raise LineNotFoundError
 
 
 def get_routes_for_linecode(linecode):
-    parameters = {"act": "webGetRoutes", "p1": linecode}
+    parameters = {"act": "webGetRoutes", "p1": str(linecode)}
     data = get_data(parameters)
     if not data:
         raise LineCodeNotFoundError
@@ -42,7 +42,7 @@ def get_routes_for_linecode(linecode):
 
 
 def get_stops(routecode):
-    parameters = {"act": "webGetStops", "p1": routecode}
+    parameters = {"act": "webGetStops", "p1": str(routecode)}
     data = get_data(parameters)
     if not data:
         raise RouteCodeNotFoundError
@@ -54,13 +54,13 @@ def get_stops(routecode):
 
 def get_arrival(stopcode, routecode):
     # Valid data is expected in this method
-    parameters = {"act": "getStopArrivals", "p1": stopcode}
+    parameters = {"act": "getStopArrivals", "p1": str(stopcode)}
     data = get_data(parameters)
     # data is null when there are no upcoming buses!
     if not data:
         return None
     for route in data:
-        if route["route_code"] == routecode:
+        if route["route_code"] == str(routecode):
             return route["btime2"]
 
 
@@ -75,13 +75,25 @@ def main():
     parser.add_argument(
         "--line", type=int, help="line number eg. 831. Returns list of stops"
     )
-    parser.add_argument("--route", type=int, help="route number. Returns WHAT")
+    parser.add_argument("--route", type=int, help="route number. Returns available routes")
     parser.add_argument(
-        "--stop", nargs="*", type=int, help="stop code(s). Returns upcoming buses"
+        "--stop", nargs="*", type=int, help="stop code(s). Returns upcoming buses if route is provided as well"
     )
     parser.add_argument("-V", "--version", action="version", version="2020.05.06")
     args = parser.parse_args()
 
+    if args.line:
+        return print(get_linecode_from_lineid(args.line))
+
+    if args.route and args.stop:
+        return print(get_arrival(args.stop[0], args.route)) # FIXME: order
+
+    if args.route:
+        return print(get_routes_for_linecode(args.route))
+
+    if args.stop:
+        return print(get_stops(args.stop[0]))
+    
     try:
         lineid = input("Select line (3 digit ID or ctrl-c/ctrl-d to quit): ")
         linecode = get_linecode_from_lineid(lineid)

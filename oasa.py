@@ -3,9 +3,15 @@ import requests
 BASE_API_URI = "http://telematics.oasa.gr/api/"
 
 
-class NotFoundLineCodeError(Exception):
-    """Raised when no such line code was found"""
+class LineNotFoundError(Exception):
+    pass
 
+
+class LineCodeNotFoundError(Exception):
+    pass
+
+
+class RouteCodeNotFoundError(Exception):
     pass
 
 
@@ -21,12 +27,14 @@ def get_linecode_from_lineid(lineid):
     for line in data:
         if line["line_id"] == lineid:
             return line["line_code"]
-    raise NotFoundLineCodeError
+    raise LineNotFoundError
 
 
 def get_routes_for_linecode(linecode):
     parameters = {"act": "webGetRoutes", "p1": linecode}
     data = get_data(parameters)
+    if not data:
+        raise LineCodeNotFoundError
     routes = {}
     for route in data:
         routes[route["RouteCode"]] = route["RouteDescrEng"]
@@ -36,6 +44,8 @@ def get_routes_for_linecode(linecode):
 def get_stops(routecode):
     parameters = {"act": "webGetStops", "p1": routecode}
     data = get_data(parameters)
+    if not data:
+        raise RouteCodeNotFoundError
     stops = {}
     for stop in data:
         stops[stop["StopCode"]] = stop["StopDescrEng"]
@@ -43,6 +53,7 @@ def get_stops(routecode):
 
 
 def get_arrival(stopcode, routecode):
+    # Valid data is expected in this method
     parameters = {"act": "getStopArrivals", "p1": stopcode}
     data = get_data(parameters)
     # data is null when there are no upcoming buses!
@@ -50,7 +61,7 @@ def get_arrival(stopcode, routecode):
         return None
     for route in data:
         if route["route_code"] == routecode:
-            return route['btime2']
+            return route["btime2"]
 
 
 def main():

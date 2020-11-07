@@ -69,11 +69,14 @@ def main():
     parser.add_argument("-V", "--version", action="version", version="2020.05.06")
     args = parser.parse_args()
 
-    lineid = input("Select line (3 digit ID): ")
-    linecode = get_linecode_from_lineid(lineid)
-    routecode = get_route(linecode)
-    stopcode = get_stop(routecode)
-    get_arrival(stopcode, routecode)
+    try:
+        lineid = input("Select line (3 digit ID): ")
+        linecode = get_linecode_from_lineid(lineid)
+        routecode = get_route(linecode)
+        stopcode = get_stop(routecode)
+        get_arrival(stopcode, routecode)
+    except KeyboardInterrupt:
+        print()
 
 
 if __name__ == "__main__":

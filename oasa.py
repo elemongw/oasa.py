@@ -29,7 +29,7 @@ def get_routes_for_linecode(linecode):
     data = get_data(parameters)
     routes = {}
     for route in data:
-        routes[route['RouteCode']] = route['RouteDescrEng']
+        routes[route["RouteCode"]] = route["RouteDescrEng"]
     return routes
 
 
@@ -38,7 +38,7 @@ def get_stops(routecode):
     data = get_data(parameters)
     stops = {}
     for stop in data:
-        stops[stop['StopCode']] = stop['StopDescrEng']
+        stops[stop["StopCode"]] = stop["StopDescrEng"]
     return stops
 
 
@@ -70,16 +70,23 @@ def main():
     args = parser.parse_args()
 
     try:
-        lineid = input("Select line (3 digit ID): ")
+        lineid = input("Select line (3 digit ID or ctrl-c/ctrl-d to quit): ")
         linecode = get_linecode_from_lineid(lineid)
+
         routes = get_routes_for_linecode(linecode)
         for route in routes:
             print(f"Code: {route} Route: {routes[route]}")
-        routecode = input("Select line (code): ")
+        routecode = None
+        while routecode not in routes:
+            routecode = input("Select line (code or ctrl-c/ctrl-d to quit): ")
+
         stops = get_stops(routecode)
-        for stop in data:
+        for stop in stops:
             print(f"Code: {stop} Stop: {stops[stop]}")
-        stopcode = input("Select stop (code): ")
+        stopcode = None
+        while stopcode not in stops:
+            stopcode = input("Select stop (code or ctrl-c/ctrl-d to quit): ")
+
         get_arrival(stopcode, routecode)
     except (KeyboardInterrupt, EOFError):
         print()

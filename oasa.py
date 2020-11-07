@@ -24,22 +24,22 @@ def get_linecode_from_lineid(lineid):
     raise NotFoundLineCodeError
 
 
-def get_route(linecode):
+def get_routes_for_linecode(linecode):
     parameters = {"act": "webGetRoutes", "p1": linecode}
     data = get_data(parameters)
+    routes = {}
     for route in data:
-        print(f"Code: {route['RouteCode']} Route: {route['RouteDescrEng']}")
-    selection = input("Select line (code): ")
-    return selection
+        routes[route['RouteCode']] = route['RouteDescrEng']
+    return routes
 
 
-def get_stop(routecode):
+def get_stops(routecode):
     parameters = {"act": "webGetStops", "p1": routecode}
     data = get_data(parameters)
+    stops = {}
     for stop in data:
-        print(f"Code: {stop['StopCode']} Stop: {stop['StopDescrEng']}")
-    selection = input("Select stop (code): ")
-    return selection
+        stops[stop['StopCode']] = stop['StopDescrEng']
+    return stops
 
 
 def get_arrival(stopcode, routecode):
@@ -72,10 +72,16 @@ def main():
     try:
         lineid = input("Select line (3 digit ID): ")
         linecode = get_linecode_from_lineid(lineid)
-        routecode = get_route(linecode)
-        stopcode = get_stop(routecode)
+        routes = get_routes_for_linecode(linecode)
+        for route in routes:
+            print(f"Code: {route} Route: {routes[route]}")
+        routecode = input("Select line (code): ")
+        stops = get_stops(routecode)
+        for stop in data:
+            print(f"Code: {stop} Stop: {stops[stop]}")
+        stopcode = input("Select stop (code): ")
         get_arrival(stopcode, routecode)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         print()
 
 

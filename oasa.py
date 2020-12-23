@@ -1,4 +1,6 @@
-import requests
+import urllib.request
+import urllib.parse
+import json
 
 BASE_API_URI = "http://telematics.oasa.gr/api/"
 
@@ -16,9 +18,11 @@ class RouteCodeNotFoundError(Exception):
 
 
 def get_data(parameters):
-    response = requests.get(BASE_API_URI, parameters)
-    response.raise_for_status()
-    return response.json()
+    data = urllib.parse.urlencode(parameters).encode("ascii")
+    req = urllib.request.Request(BASE_API_URI, data)
+    with urllib.request.urlopen(req) as response:
+        parsed = json.loads(response.read().decode())
+        return parsed
 
 
 def get_linecode_from_lineid(lineid):
@@ -72,28 +76,37 @@ def main():
         epilog='Example usage: "%(prog)s --stop 80506"'
         ' or search for stop code: "%(prog)s --line 831"',
     )
+    parser.add_argument("--line",
+                        type=int,
+                        help="line number eg. 831. Returns list of stops")
+    parser.add_argument("--route",
+                        type=int,
+                        help="route number. Returns available routes")
     parser.add_argument(
-        "--line", type=int, help="line number eg. 831. Returns list of stops"
+        "--stop",
+        nargs="*",
+        type=int,
+        help=
+        "stop code(s). Returns upcoming buses if route is provided as well",
     )
-    parser.add_argument("--route", type=int, help="route number. Returns available routes")
-    parser.add_argument(
-        "--stop", nargs="*", type=int, help="stop code(s). Returns upcoming buses if route is provided as well"
-    )
-    parser.add_argument("-V", "--version", action="version", version="2020.05.06")
+    parser.add_argument("-V",
+                        "--version",
+                        action="version",
+                        version="2020.05.06")
     args = parser.parse_args()
 
     if args.line:
         return print(get_linecode_from_lineid(args.line))
 
     if args.route and args.stop:
-        return print(get_arrival(args.stop[0], args.route)) # FIXME: order
+        return print(get_arrival(args.stop[0], args.route))  # FIXME: order
 
     if args.route:
         return print(get_routes_for_linecode(args.route))
 
     if args.stop:
         return print(get_stops(args.stop[0]))
-    
+
     try:
         lineid = input("Select line (3 digit ID or ctrl-c/ctrl-d to quit): ")
         linecode = get_linecode_from_lineid(lineid)

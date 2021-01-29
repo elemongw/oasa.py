@@ -1,12 +1,35 @@
 # oasa.py
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/elemongw/oasa.py/Python%20application)
+![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)
+![MIT License](https://img.shields.io/github/license/elemongw/oasa.py)
 
-oasa.py is meant to be used both interactively and non-interactively. It is meant to wrap the OASA API to provide both an interactive tool and pythonized API. Simplicity comes first so things that can be accomplished with the GNU toolchain will noted be added, for example:
+This package is meant to provide a simple python interface for interacting with the OASA Telematics API (WIP, not ready). It also provides a simple CLI tool, oasa.py, for searching upcoming buses (already usable).
 
-> watch -n 10 oasa.py
+## Using oasa.py
 
-Free software: MIT license
+```
+$ oasa.py --help
+usage: oasa.py [-h] [--line LINE] [--route ROUTE] [--stop [STOP ...]] [-V]
 
-## Credits
+Get upcoming buses.
 
-This package is create by Giorgos Retsinas using API documentation from [https://oasa-telematics-api.readthedocs.io/](https://oasa-telematics-api.readthedocs.io/) as well as reverse engineering.
+optional arguments:
+  -h, --help         show this help message and exit
+  --line LINE        line number eg. 831. Returns list of stops
+  --route ROUTE      route number. Returns available routes
+  --stop [STOP ...]  stop code(s). Returns upcoming buses if route is provided as well
+  -V, --version      show program's version number and exit
+
+Example usage: "oasa.py --stop 80506" or search for stop code: "oasa.py --line 831"
+```
+
+## More Resources
+
+[Unofficial documentation for OASA Telematics API](https://oasa-telematics-api.readthedocs.io/)
+
+## License
+
+Copyright &copy; 2020 Georgios Retsinas
+
+This project is licensed under the MIT License - see the LICENSE file for details
